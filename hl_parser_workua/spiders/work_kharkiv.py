@@ -11,6 +11,8 @@ class WorkKharkivSpider(scrapy.Spider):
         for item in response.css('div#pjax-resume-list div.card.resume-link'):
 
             card_uri = item.css('h2 a::attr(href)').get()
+            # при таком запросе выборка возраста меньше из-за того, что селектор не имеет постоянного места
+            # и может быть на второй или третьей позиции
             age = item.css('div > span:nth-child(3)::text').get()[:2]
 
             result = {
@@ -32,13 +34,11 @@ class WorkKharkivSpider(scrapy.Spider):
 
     def parse_person(self, response):
 
-        # age = response.css('div.card dd::text').get()[:2]
         header = response.css('div.card > h2::text').get()
         description = ' '.join(response.css('div.card > p::text').getall())
         description = header + " " + ' '.join(description.split())
 
         people_info = response.meta['result']
-        # people_info['age'] = age
         people_info['description'] = description
 
         yield people_info
